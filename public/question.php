@@ -129,6 +129,43 @@ $stmtTestCases->close();
             });
         </script>
     </div>
+
+<?php
+// 查询历史作答记录
+$userId = $_SESSION['user_id'];
+$sqlHistory = "SELECT id, code, submitted_at, status FROM submissions WHERE user_id = ? AND question_id = ? ORDER BY submitted_at DESC";
+$stmtHistory = $conn->prepare($sqlHistory);
+
+// 检查 SQL 语句是否准备成功
+if (!$stmtHistory) {
+    die("SQL 语句准备失败: ". $conn->error);
+}
+
+$stmtHistory->bind_param("ii", $userId, $questionId);
+$stmtHistory->execute();
+$historyResult = $stmtHistory->get_result();
+$historyRecords = [];
+while ($record = $historyResult->fetch_assoc()) {
+    $historyRecords[] = $record;
+}
+$stmtHistory->close();
+
+if (!empty($historyRecords)) {
+    echo '<div class="card mt-3">';
+    echo '<div class="card-body">';
+    echo '<h5 class="card-title">历史作答记录</h5>';
+    foreach ($historyRecords as $record) {
+        echo '<div class="mb-3">';
+        echo '<h6>提交时间：' . $record['submitted_at'] . '</h6>';
+        echo '<span>状态：'.$record['status'].'</span>';
+        echo '<pre>' . htmlspecialchars($record['code']) . '</pre>';
+        echo '</div>';
+    }
+    echo '</div>';
+    echo '</div>';
+}
+?>
+
 <?php
 // 获取并清空输出缓冲区的内容
 $content = ob_get_clean();
