@@ -1,7 +1,11 @@
 # code_judge
-该程序需调用jobe评测服务器，以下为jobe评测服务器安装的方式：
+该程序使用php+mysql开发，用于编程题的在线评测。
+程序需需调用jobe评测服务器
+以下为新西兰坎特伯雷大学的jobe评测服务器地址：
+jobe2.cosc.canterbury.ac.nz
+密钥：2AAA7A5415B4A9B394B54BF1D2E9D
+建议自行搭建jobe评测服务器，以下为jobe评测服务器安装的方式：
 
-Jobe 是一个基于 RESTful API 的编程代码评测服务器，可用于自动评测多种编程语言的代码。以下是部署 Jobe 评测服务器的详细步骤：
 # 1. 环境准备
 操作系统：建议使用 Linux 系统，如 Ubuntu 18.04 及以上版本。
 软件依赖：需要安装 Docker 和 Docker Compose，因为 Jobe 官方推荐使用 Docker 进行部署。
