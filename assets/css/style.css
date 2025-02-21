@@ -1,0 +1,53 @@
+body {
+    background: #eee;
+    min-height: 100%;
+    margin:0;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+footer {
+    width:100%;
+    background-color: #00008B;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    margin: 0;
+    margin-top: 10px;
+    position: absolute;
+    bottom: 0;
+    z-index:10;
+}
+/* 主菜单样式 */
+.navbar {
+    background-color: #00008B;
+    color: white;
+}
+
+.navbar-brand,
+.navbar-nav.nav-link {
+    color: white;
+}
+
+.navbar-brand:hover,
+.navbar-nav.nav-link:hover {
+    color: #D3D3D3;
+}
+
+/* 为了让导航栏内的链接在鼠标悬停时有更好的视觉效果 */
+.nav-item {
+    transition: background-color 0.3s ease;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+
+.circle {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
