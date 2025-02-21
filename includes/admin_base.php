@@ -75,7 +75,6 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
         <li><a href="user_management.php">用户管理</a></li>
         <li><a href="category_management.php">题目类别管理</a></li>
         <li><a href="question_management.php">题目管理</a></li>
-        <li><a href="statistics.php">答题统计</a></li>
         <li><a href="../public/index.php">返回前台</a></li>
         <li><a href="../public/logout.php">退出登录</a></li>
     </ul>
