@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $languageMap = [
-        'c_cpp' => 'c',       // C
+        'c_cpp' => 'cpp',       // C
         'cpp' => 'cpp',       // C++
         'java' => 'java',     // Java
         'python' => 'python3' // Python3
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $requestData = [
             'run_spec' => [
                 'language_id' => $languageId,
-                'sourcefilename' => 'main.' . ($language === 'python' ? 'py' : ($language === 'java' ? 'java' : 'c')),
+                'sourcefilename' => 'main.' . ($language === 'python' ? 'py' : ($language === 'java' ? 'java' : 'cpp')),
                 'sourcecode' => $answer,
                 'input' => empty($testCase['input']) ? null : $testCase['input'],
             ]

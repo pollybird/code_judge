@@ -238,16 +238,15 @@ if ($question_result->num_rows > 0) {
             $test_cases[] = $test_case_row;
         }
 
-        echo '<div class="modal fade" id="editQuestionModal-' . $question_id . '" tabindex="-1" aria-labelledby="editQuestionModalLabel-' . $question_id . '" aria-hidden="true">';
+        echo '<div class="modal fade modal-maximized" id="editQuestionModal-' . $question_id . '" tabindex="-1" aria-labelledby="editQuestionModalLabel-' . $question_id . '" aria-hidden="true">';
         echo '<div class="modal-dialog">';
         echo '<div class="modal-content">';
         echo '<div class="modal-header">';
         echo '<h5 class="modal-title" id="editQuestionModalLabel-' . $question_id . '">修改题目</h5>';
         echo '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-// 添加最大化按钮，使用 Font Awesome 图标
-        echo '<button type="button" class="btn btn-sm btn-secondary maximize-modal" data-modal-id="editQuestionModal-' . $question_id . '">
-        <i class="fa-solid fa-expand"></i>
-      </button>';
+        echo '<button type="button" class="btn btn-sm btn-secondary maximize-modal" data-modal-id="editQuestionModal-' . $question_id . '">';
+        echo '<i class="fa-solid fa-compress"></i>';
+        echo '</button>';
         echo '</div>';
         echo '<div class="modal-body" style="overflow-y: auto;">';
         echo '<form method="post">';
@@ -333,14 +332,14 @@ if ($question_result->num_rows > 0) {
 </div>
 
 <!-- 添加题目模态框 -->
-<div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+<div class="modal fade modal-maximized" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addQuestionModalLabel">添加题目</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 <button type="button" class="btn btn-sm btn-secondary maximize-modal" data-modal-id="addQuestionModal">
-                    <i class="fa-solid fa-expand"></i>
+                    <i class="fa-solid fa-compress"></i>
                 </button>
             </div>
             <div class="modal-body" style="overflow-y: auto;">
@@ -417,11 +416,18 @@ if ($question_result->num_rows > 0) {
                 textareas.forEach(textarea => {
                     textarea.value = '';
                 });
+                
+                // 移除原有的删除按钮
+                const existingRemoveButtons = inputGroup.querySelectorAll('.remove-test-case');
+                existingRemoveButtons.forEach(btn => btn.remove());
+                
+                // 添加新的删除按钮
                 const removeButton = document.createElement('button');
                 removeButton.type = 'button';
                 removeButton.classList.add('btn', 'btn-danger', 'remove-test-case');
                 removeButton.textContent = '删除';
                 inputGroup.appendChild(removeButton);
+                
                 this.parentNode.insertBefore(inputGroup, this);
             });
         });
@@ -486,15 +492,6 @@ if ($question_result->num_rows > 0) {
                     modal.classList.add('modal-maximized');
                     icon.classList.remove('fa-expand');
                     icon.classList.add('fa-compress');
-
-                    // 动态调整模态框内容高度
-                    const header = modal.querySelector('.modal-header');
-                    const body = modal.querySelector('.modal-body');
-                    if (header && body) {
-                        const headerHeight = header.offsetHeight;
-                        const totalHeight = modal.offsetHeight;
-                        body.style.height = `calc(${totalHeight}px - ${headerHeight}px)`;
-                    }
                 }
             });
         });

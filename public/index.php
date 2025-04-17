@@ -2,7 +2,6 @@
 // 设置页面标题
 $page_title = '首页';
 
-session_start();
 // 开启输出缓冲
 ob_start();
 

@@ -58,7 +58,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         'site_keywords' => $site_keywords,
         'site_description' => $site_description,
         'icp_number' => $icp_number,
-        'jobe_server' => $jobe_server
+        'jobe_server' => $jobe_server,
+        'site_domain' => $_POST['site_domain']
     ];
     foreach ($config_items as $name => $value) {
         $stmt = $conn->prepare("INSERT INTO site_config (name, value) VALUES (?, ?)");
@@ -162,6 +163,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="mb-3">
             <label for="jobe_server" class="form-label">Jobe 服务器地址</label>
             <input type="text" class="form-control" id="jobe_server" name="jobe_server" required>
+        </div>
+        <div class="mb-3">
+            <label for="site_domain" class="form-label">网站域名</label>
+            <input type="text" class="form-control" id="site_domain" name="site_domain" required placeholder="例如：example.com">
         </div>
 
         <!-- 管理员账号信息 -->

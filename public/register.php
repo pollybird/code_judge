@@ -1,7 +1,4 @@
 <?php
-// 开启会话
-session_start();
-
 // 若用户已登录，重定向到首页
 if (isset($_SESSION['user_id'])) {
     header('Location: index.php');

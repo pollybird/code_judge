@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // 包含配置文件
 require_once __DIR__. '/config.php';
 
@@ -47,7 +51,7 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
     <!-- 引入 Ace 主题 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.10.0/theme-monokai.min.js"></script>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <!-- 导航栏 -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
@@ -79,7 +83,6 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
             </ul>
             <ul class="navbar-nav">
                 <?php
-                session_start();
                 if (isset($_SESSION['user_id'])) {
                     echo '<li class="nav-item">';
                     echo '<a class="nav-link" href="change_password.php">修改密码</a>';
@@ -107,28 +110,36 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
     </div>
 </nav>
 <!-- 页面内容 -->
-<div class="container">
-    <?php echo $content;?>
+<div class="container flex-grow-1">
+    <?php
+    if (!isset($content)) {
+        $content = '';
+    }
+    echo $content;
+    ?>
 </div>
 
-    <footer>
-        <?php
-        // 查询备案号
-        $sql = "SELECT value FROM site_config WHERE name = 'icp_number'";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $icpNumber = '';
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $icpNumber = $row['value'];
-        }
-        $stmt->close();
-        ?>
-        <p>&copy; 2025 Your Company Name. All rights reserved. | 备案号：<?php echo htmlspecialchars($icpNumber); ?></p>
-    </footer>
+<footer class="bg-primary py-3 mt-auto">
+    <?php
+    // 查询备案号
+    $sql = "SELECT value FROM site_config WHERE name = 'icp_number'";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $icpNumber = '';
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $icpNumber = $row['value'];
+    }
+    $stmt->close();
+    ?>
+    <div class="container">
+        <p class="text-center mb-0 text-white">&copy; 2025 <?php echo htmlspecialchars($site_name); ?>. All rights reserved. | 备案号：<?php echo htmlspecialchars($icpNumber); ?></p>
+    </div>
+</footer>
 
 <!-- 引入 Bootstrap JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

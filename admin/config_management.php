@@ -53,6 +53,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="jobe_server" class="form-label">Jobe 服务器地址</label>
                     <input type="text" class="form-control" id="jobe_server" name="jobe_server" value="<?php echo htmlspecialchars($config_items['jobe_server']?? '');?>">
                 </div>
+                <div class="mb-3">
+                    <label for="site_domain" class="form-label">网站域名</label>
+                    <input type="text" class="form-control" id="site_domain" name="site_domain" value="<?php echo htmlspecialchars($config_items['site_domain']?? '');?>" placeholder="例如：example.com">
+                </div>
                 <button type="submit" class="btn btn-primary">保存配置</button>
             </form>
         </div>

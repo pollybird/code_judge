@@ -17,35 +17,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
 
     // 检查是否有匹配的用户记录
-    if ($result->num_rows == 1) {
-        $row = $result->fetch_assoc();
-        // 对输入的密码进行 MD5 加密，与数据库中的密码进行比较
-        $hashed_password = md5($password);
-        if ($hashed_password === $row['password']) {
-            // 密码匹配，设置会话变量
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['username'] = $row['username'];
-            $_SESSION['is_admin'] = $row['is_admin'];
-
-            // 获取用户的 IP 地址
-            $user_ip = $_SERVER['REMOTE_ADDR'];
-            // 获取当前时间
-            $current_time = date('Y-m-d H:i:s');
-
-            // 更新用户的最后登录时间和 IP 地址
-            $update_stmt = $conn->prepare("UPDATE users SET last_login =?, last_ip =? WHERE id =?");
-            $update_stmt->bind_param("ssi", $current_time, $user_ip, $row['id']);
-            $update_stmt->execute();
-            $update_stmt->close();
-
-            // 登录成功，重定向到首页
-            header('Location: ../public/index.php');
-            exit;
-        } else {
-            // 密码不匹配，重定向到登录页并显示错误信息
-            header('Location: ../public/login.php?error=密码错误');
-            exit;
-        }
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        session_start();
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['is_admin'] = $user['is_admin'];
+        header('Location: ../public/index.php');
+        exit;
     } else {
         // 未找到匹配的用户名，重定向到登录页并显示错误信息
         header('Location: ../public/login.php?error=用户名不存在');
