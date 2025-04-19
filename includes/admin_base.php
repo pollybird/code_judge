@@ -73,6 +73,7 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
     <ul>
         <li><a href="panel.php">数据统计面板</a></li>
         <li><a href="config_management.php">网站基础配置管理</a></li>
+        <li><a href="language_switch.php">编程语言开关</a></li>
         <li><a href="user_management.php">用户管理</a></li>
         <li><a href="category_management.php">题目类别管理</a></li>
         <li><a href="question_management.php">题目管理</a></li>

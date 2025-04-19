@@ -21,6 +21,15 @@ ob_start();
 // 引入数据库连接文件
 require_once '../includes/config.php';
 
+$languageConfigFile = dirname(__DIR__) . '/includes/language.json';
+$enabledLanguages = ['c_cpp', 'java', 'python']; // 默认值
+if (file_exists($languageConfigFile)) {
+    $enabledLanguages = json_decode(file_get_contents($languageConfigFile), true);
+    if (!is_array($enabledLanguages)) {
+        $enabledLanguages = ['c_cpp', 'java', 'python'];
+    }
+}
+
 // 获取题目 ID
 $questionId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -85,9 +94,20 @@ $stmtTestCases->close();
             <div class="mb-3">
                 <label for="language" class="form-label">选择语言</label>
                 <select id="language" name="language" class="form-select">
-                    <option value="c_cpp">C/C++</option>
-                    <option value="java">Java</option>
-                    <option value="python">Python</option>
+                    <?php foreach ($enabledLanguages as $lang): ?>
+                        <option value="<?php echo $lang; ?>">
+                            <?php 
+                            switch($lang) {
+                                case 'c_cpp': echo 'C/C++'; break;
+                                case 'java': echo 'Java'; break;
+                                case 'python': echo 'Python'; break;
+                                case 'nodejs': echo 'Node.js'; break;
+                                case 'pascal': echo 'Pascal'; break;
+                                default: echo ucfirst($lang);
+                            }
+                            ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="mb-3">
@@ -102,18 +122,25 @@ $stmtTestCases->close();
             // 初始化 Ace 编辑器
             const editor = ace.edit("editor");
             editor.setTheme("ace/theme/monokai");
-            editor.getSession().setMode("ace/mode/c_cpp"); // 默认语言为 C/C++
+            
+            // 获取第一个可用的语言作为默认语言
+            const firstEnabledLanguage = document.getElementById('language').options[0].value;
+            const modeMap = {
+                'c_cpp': 'ace/mode/c_cpp',
+                'java': 'ace/mode/java',
+                'python': 'ace/mode/python',
+                'nodejs': 'ace/mode/javascript', // Node.js使用JavaScript模式
+                'pascal': 'ace/mode/pascal'
+            };
+            
+            // 设置默认语言模式
+            editor.getSession().setMode(modeMap[firstEnabledLanguage]);
             // 调大字体大小
             editor.setFontSize(16);
 
             const languageSelect = document.getElementById('language');
             languageSelect.addEventListener('change', function () {
                 const selectedLanguage = this.value;
-                const modeMap = {
-                    'c_cpp': 'ace/mode/c_cpp',
-                    'java': 'ace/mode/java',
-                    'python': 'ace/mode/python'
-                };
                 editor.getSession().setMode(modeMap[selectedLanguage]);
             });
 
@@ -155,7 +182,8 @@ $stmtTestCases->close();
 <?php
 // 查询历史作答记录
 $userId = $_SESSION['user_id'];
-$sqlHistory = "SELECT id, code, submitted_at, status FROM submissions WHERE user_id = ? AND question_id = ? ORDER BY submitted_at DESC";
+// 修改查询历史记录的SQL语句，增加language字段
+$sqlHistory = "SELECT id, code, submitted_at, status, language FROM submissions WHERE user_id = ? AND question_id = ? ORDER BY submitted_at DESC";
 $stmtHistory = $conn->prepare($sqlHistory);
 
 // 检查 SQL 语句是否准备成功
@@ -182,6 +210,18 @@ if (!empty($historyRecords)) {
     foreach ($displayRecords as $index => $record) {
         echo '<div class="mb-3">';
         echo '<h6>提交时间：' . $record['submitted_at'] . '</h6>';
+        
+        // 添加编程语言显示
+        $languageName = '';
+        switch($record['language']) {
+            case 'c_cpp': $languageName = 'C/C++'; break;
+            case 'java': $languageName = 'Java'; break;
+            case 'python': $languageName = 'Python'; break;
+            case 'nodejs': $languageName = 'Node.js'; break;
+            case 'pascal': $languageName = 'Pascal'; break;
+            default: $languageName = ucfirst($record['language']);
+        }
+        echo '<div class="mb-1">编程语言：' . $languageName . '</div>';
         
         // 根据状态设置颜色
         $statusColor = ($record['status'] === 'passed') ? 'text-success' : 'text-danger';
@@ -215,9 +255,17 @@ if (!empty($historyRecords)) {
 ?>
 
 <?php
-// 获取并清空输出缓冲区的内容
+// 在表单提交处理部分之后，获取所有历史记录代码
+$allHistoryCodes = [];
+foreach ($historyRecords as $record) {
+    $allHistoryCodes[] = $record['code'];
+}
+$encodedHistoryCodes = json_encode($allHistoryCodes);
+
+// 获取缓冲区内容
 $content = ob_get_clean();
-// 包含 base.php 母版页
+
+// 包含base.php母版页
 include('../includes/base.php');
 
 // 关闭数据库连接

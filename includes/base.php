@@ -3,8 +3,21 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 修改配置检查逻辑
+$configFile = __DIR__ . '/config.php';
+if (!file_exists($configFile)) {
+    header('Location: ../install/install.php');
+    exit;
+}
+
 // 包含配置文件
-require_once __DIR__. '/config.php';
+require_once $configFile;
+
+// 检查是否已安装
+if (!defined('INSTALLED') || INSTALLED == 0) {
+    header('Location: ../install/install.php');
+    exit;
+}
 
 // 检查数据库连接是否成功
 if (!isset($conn) || $conn->connect_error) {
@@ -31,6 +44,15 @@ $site_description = $config_items['site_description']?? '';
 
 // 如果有具体页面标题，拼接在网站标题后面
 $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
+
+$languageConfigFile = __DIR__ . '/language.json';
+$enabledLanguages = ['c_cpp', 'java', 'python']; // 默认值
+if (file_exists($languageConfigFile)) {
+    $enabledLanguages = json_decode(file_get_contents($languageConfigFile), true);
+    if (!is_array($enabledLanguages)) {
+        $enabledLanguages = ['c_cpp', 'java', 'python'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -48,6 +70,7 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.10.0/mode-c_cpp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.10.0/mode-java.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.10.0/mode-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.10.0/mode-pascal.min.js"></script>
     <!-- 引入 Ace 主题 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.10.0/theme-monokai.min.js"></script>
 </head>
@@ -90,7 +113,6 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
                     echo '<li class="nav-item">';
                     echo '<a class="nav-link" href="logout.php">注销登录</a>';
                     echo '</li>';
-                    // 假设管理员用户的角色 ID 为 1，可根据实际情况修改
                     if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
                         echo '<li class="nav-item">';
                         echo '<a class="nav-link" href="../admin/panel.php">登录后台</a>';

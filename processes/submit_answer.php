@@ -37,13 +37,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $languageMap = [
-        'c_cpp' => 'cpp',       // C
-        'cpp' => 'cpp',       // C++
-        'java' => 'java',     // Java
-        'python' => 'python3' // Python3
+        'c_cpp' => 'cpp',       // C/C++
+        'java' => 'java',       // Java
+        'python' => 'python3',  // Python3
+        'nodejs' => 'nodejs',   // Node.js
+        'pascal' => 'pascal'    // Pascal
     ];
 
     $languageId = isset($languageMap[$language]) ? $languageMap[$language] : 'python3';
+
+    // 根据语言类型设置文件扩展名
+    $fileExtensions = [
+        'c_cpp' => 'cpp',
+        'java' => 'java',
+        'python' => 'py',
+        'nodejs' => 'js',
+        'pascal' => 'pas'
+    ];
+    $extension = isset($fileExtensions[$language]) ? $fileExtensions[$language] : 'py';
 
     $allPassed = true; // 标记所有测试用例是否都通过
 
@@ -53,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $requestData = [
             'run_spec' => [
                 'language_id' => $languageId,
-                'sourcefilename' => 'main.' . ($language === 'python' ? 'py' : ($language === 'java' ? 'java' : 'cpp')),
+                'sourcefilename' => 'main.' . $extension,
                 'sourcecode' => $answer,
                 'input' => empty($testCase['input']) ? null : $testCase['input'],
             ]
