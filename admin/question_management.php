@@ -215,7 +215,7 @@ if ($question_result->num_rows > 0) {
         echo '<td>' . htmlspecialchars($category_name) . '</td>';
         echo '<td>';
         echo '<button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editQuestionModal-' . $question_id . '">修改</button> ';
-        echo '<a href="?delete=' . $question_id . '&category=' . $category_id . '&page=' . $page . '" class="btn btn-danger btn-sm" onclick="return confirm(\'确定要删除该题目吗？\')">删除</a>';
+        echo '<a href="?delete=' . $question_id . '&category=' . $category_id . '&page=' . $page . '" class="btn btn-danger btn-sm mx-2" onclick="return confirm(\'确定要删除该题目吗？\')">删除</a>';
         echo '<a href="submission.php?question_id=' . $question_id . '" class="btn btn-info btn-sm" target="_blank">查看作答</a>';
         echo '</td>';
         echo '</tr>';
@@ -391,6 +391,7 @@ if ($question_result->num_rows > 0) {
         // 初始化 TinyMCE 用于添加题目描述
         tinymce.init({
             selector: '#add_description',
+            language: 'zh_CN',
             plugins: 'lists link image media',
             toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media',
             height: 300
@@ -401,6 +402,7 @@ if ($question_result->num_rows > 0) {
         editDescriptions.forEach(function (desc) {
             tinymce.init({
                 selector: '#' + desc.id,
+                language: 'zh_CN',
                 plugins: 'lists link image media',
                 toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media',
                 height: 300

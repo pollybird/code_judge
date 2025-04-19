@@ -73,6 +73,66 @@ if (isset($_GET['toggle_admin']) && is_numeric($_GET['toggle_admin'])) {
     $get_user_stmt->close();
 }
 
+// 处理重置密码请求
+if (isset($_GET['reset_password']) && is_numeric($_GET['reset_password'])) {
+    $user_id = $_GET['reset_password'];
+    
+    // 生成8位随机密码
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $new_password = substr(str_shuffle($chars), 0, 8);
+    $hashed_password = md5($new_password);
+    
+    // 更新密码
+    $reset_stmt = $conn->prepare("UPDATE users SET password =? WHERE id =?");
+    $reset_stmt->bind_param("si", $hashed_password, $user_id);
+    
+    if ($reset_stmt->execute()) {
+        echo '<script>
+            function copyToClipboard(text) {
+                // 尝试使用现代Clipboard API
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(function() {
+                        console.log("复制成功");
+                    }, function(err) {
+                        // 如果Clipboard API失败，使用老式方法
+                        fallbackCopyText(text);
+                    });
+                } else {
+                    // 浏览器不支持Clipboard API，使用老式方法
+                    fallbackCopyText(text);
+                }
+            }
+            
+            function fallbackCopyText(text) {
+                var textarea = document.createElement("textarea");
+                textarea.value = text;
+                textarea.style.position = "fixed";  // 防止页面滚动
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                try {
+                    var successful = document.execCommand("copy");
+                    if (!successful) {
+                        console.error("复制失败");
+                    }
+                } catch (err) {
+                    console.error("复制失败: ", err);
+                }
+                
+                document.body.removeChild(textarea);
+            }
+            
+            var newPassword = "' . $new_password . '";
+            copyToClipboard(newPassword);
+            alert("密码已重置为: " + newPassword + "\\n已尝试自动复制到剪贴板");
+            window.location.href = "user_management.php?page=' . $page . '";
+        </script>';
+    } else {
+        echo '<div class="alert alert-danger" role="alert">密码重置失败：' . $conn->error . '</div>';
+    }
+    $reset_stmt->close();
+}
+
 // 查询用户总数
 $total_query = "SELECT COUNT(*) as total FROM users";
 $total_result = $conn->query($total_query);
@@ -119,6 +179,7 @@ $user_result = $conn->query($user_query);
                         echo '<td>' . $last_ip . '</td>';
                         echo '<td>';
                         echo '<a href="?toggle_admin=' . $user_id . '&page=' . $page . '" class="btn btn-warning btn-sm" onclick="return confirm(\'确定要' . ($user_row['is_admin'] ? '取消' : '设置') . '该用户的管理员身份吗？\')">' . ($user_row['is_admin'] ? '取消管理员' : '设置为管理员') . '</a> ';
+                        echo '<a href="?reset_password=' . $user_id . '&page=' . $page . '" class="btn btn-secondary btn-sm mx-2" onclick="return confirm(\'确定要重置该用户的密码吗？\')">重置密码</a> ';
                         if (!$user_row['is_admin']) {
                             echo '<a href="?delete=' . $user_id . '&page=' . $page . '" class="btn btn-danger btn-sm" onclick="return confirm(\'确定要删除该用户吗？\')">删除</a>';
                         }

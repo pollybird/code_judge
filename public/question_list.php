@@ -48,19 +48,29 @@ $stmt->execute();
 $result = $stmt->get_result();
 $questions = [];
 while ($question = $result->fetch_assoc()) {
-    // 查询当前用户对该题的最后一次答题记录
+    // 查询当前用户对该题的所有答题记录
     $sqlSubmission = "SELECT status FROM submissions 
                       WHERE user_id = ? AND question_id = ? 
-                      ORDER BY submitted_at DESC LIMIT 1";
+                      ORDER BY submitted_at DESC";
     $stmtSubmission = $conn->prepare($sqlSubmission);
     $stmtSubmission->bind_param("ii", $_SESSION['user_id'], $question['id']);
     $stmtSubmission->execute();
     $resultSubmission = $stmtSubmission->get_result();
+    
     if ($resultSubmission->num_rows === 0) {
         $question['status'] = 'not_answered';
     } else {
-        $rowSubmission = $resultSubmission->fetch_assoc();
-        $question['status'] = $rowSubmission['status'];
+        $hasPassed = false;
+        $hasFailed = false;
+        while ($rowSubmission = $resultSubmission->fetch_assoc()) {
+            if ($rowSubmission['status'] === 'passed') {
+                $hasPassed = true;
+                break; // 只要有一次通过就标记为通过
+            } else {
+                $hasFailed = true;
+            }
+        }
+        $question['status'] = $hasPassed ? 'passed' : ($hasFailed ? 'failed' : 'not_answered');
     }
     $stmtSubmission->close();
     $questions[] = $question;

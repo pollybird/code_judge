@@ -93,7 +93,7 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
                     // 假设管理员用户的角色 ID 为 1，可根据实际情况修改
                     if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1) {
                         echo '<li class="nav-item">';
-                        echo '<a class="nav-link" href="../admin/config_management.php">登录后台</a>';
+                        echo '<a class="nav-link" href="../admin/panel.php">登录后台</a>';
                         echo '</li>';
                     }
                 }else{

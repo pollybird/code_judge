@@ -80,7 +80,7 @@ $stmtTestCases->close();
                 <?php endforeach; ?>
             </div>
         </div>
-        <form id="answerForm" action="../processes/submit_answer.php" method="post">
+        <form id="answerForm">
             <input type="hidden" name="question_id" value="<?php echo $questionId; ?>">
             <div class="mb-3">
                 <label for="language" class="form-label">选择语言</label>
@@ -124,26 +124,30 @@ $stmtTestCases->close();
                 const currentCode = editor.getValue();
                 document.getElementById('answer').value = currentCode;
 
-                // 检查是否与历史记录中的代码重复
-                const historyCodes = document.querySelectorAll('.history-code');
-                for (let i = 0; i < historyCodes.length; i++) {
-                    if (historyCodes[i].textContent.trim() === currentCode.trim()) {
+                // 规范化代码比较：去除所有空白字符后比较
+                const normalizeCode = (code) => {
+                    return code.replace(/\s+/g, ''); // 移除所有空白字符
+                };
+                const normalizedCurrent = normalizeCode(currentCode);
+
+                // 检查是否与所有历史记录中的代码重复
+                let isDuplicate = false;
+                
+                for (let i = 0; i < allHistoryCodes.length; i++) {
+                    if (normalizeCode(allHistoryCodes[i]) === normalizedCurrent) {
                         document.getElementById('resultDisplay').innerHTML = 
                             '<div class="alert alert-warning">该代码已提交过，请勿重复提交</div>';
-                        return false; // 添加这行以阻止表单提交
+                        isDuplicate = true;
+                        break;
                     }
                 }
 
-                const formData = new FormData(form);
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '../processes/submit_answer.php', true);
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        const resultDisplay = document.getElementById('resultDisplay');
-                        resultDisplay.innerHTML = xhr.responseText;
-                    }
-                };
-                xhr.send(formData);
+                if (isDuplicate) {
+                    return false;
+                }
+
+                // 只有代码不重复时才提交表单
+                this.submit();
             });
         </script>
     </div>
@@ -231,18 +235,36 @@ $encodedHistoryCodes = json_encode($allHistoryCodes);
 <script>
     const allHistoryCodes = <?php echo $encodedHistoryCodes; ?>;
     
-    const form = document.getElementById('answerForm');
-    form.addEventListener('submit', function (e) {
+    // 修改表单提交处理 - 合并两个事件监听器为一个
+    document.getElementById('answerForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // 同步编辑器内容到textarea
         const currentCode = editor.getValue();
         document.getElementById('answer').value = currentCode;
 
+        // 规范化代码比较：对于Python保留缩进，其他语言移除所有空白
+        const normalizeCode = (code, language) => {
+            if (language === 'python') {
+                // 对于Python只移除多余的空格和空行，保留缩进
+                return code.replace(/ +$/gm, '') // 移除行尾空格
+                          .replace(/^\s*\n/gm, '\n') // 移除空行
+                          .replace(/\r?\n|\r/g, '\n'); // 统一换行符
+            } else {
+                // 其他语言移除所有空白字符
+                return code.replace(/\s+/g, '');
+            }
+        };
+        
+        const selectedLanguage = document.getElementById('language').value;
+        const normalizedCurrent = normalizeCode(currentCode, selectedLanguage);
+
         // 检查是否与所有历史记录中的代码重复
-        const historyCodes = <?php echo $encodedHistoryCodes; ?>;
         let isDuplicate = false;
         
-        for (let i = 0; i < historyCodes.length; i++) {
-            if (historyCodes[i].trim() === currentCode.trim()) {
+        for (let i = 0; i < allHistoryCodes.length; i++) {
+            const normalizedHistory = normalizeCode(allHistoryCodes[i], selectedLanguage);
+            if (normalizedHistory === normalizedCurrent) {
                 document.getElementById('resultDisplay').innerHTML = 
                     '<div class="alert alert-warning">该代码已提交过，请勿重复提交</div>';
                 isDuplicate = true;
@@ -251,18 +273,25 @@ $encodedHistoryCodes = json_encode($allHistoryCodes);
         }
 
         if (isDuplicate) {
-            return false; // 完全阻止表单提交
+            return false;
         }
 
-        const formData = new FormData(form);
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '../processes/submit_answer.php', true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const resultDisplay = document.getElementById('resultDisplay');
-                resultDisplay.innerHTML = xhr.responseText;
-            }
-        };
-        xhr.send(formData);
+        // 使用AJAX提交表单
+        const formData = new FormData(this);
+        
+        fetch('../processes/submit_answer.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('resultDisplay').innerHTML = data;
+            // 提交成功后刷新页面以更新历史记录
+            location.reload();
+        })
+        .catch(error => {
+            document.getElementById('resultDisplay').innerHTML = 
+                '<div class="alert alert-danger">提交失败: ' + error + '</div>';
+        });
     });
 </script>

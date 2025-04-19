@@ -71,12 +71,12 @@ $page_title = isset($page_title)? $page_title. ' - '. $site_name : $site_name;
 <!-- 侧边栏导航 -->
 <div class="sidebar">
     <ul>
+        <li><a href="panel.php">数据统计面板</a></li>
         <li><a href="config_management.php">网站基础配置管理</a></li>
         <li><a href="user_management.php">用户管理</a></li>
         <li><a href="category_management.php">题目类别管理</a></li>
         <li><a href="question_management.php">题目管理</a></li>
         <li><a href="../public/index.php">返回前台</a></li>
-        <li><a href="../public/logout.php">退出登录</a></li>
     </ul>
 </div>
 
