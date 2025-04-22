@@ -90,7 +90,7 @@ $stmt->close();
                 echo htmlspecialchars($category['name']);
             }
             $stmtCategory->close();
-            ?> 分类下的题目列表</h1>
+            ?> </h1>
         <ul class="list-group">
             <?php foreach ($questions as $question): ?>
                 <li class="list-group-item">

@@ -92,7 +92,7 @@ if (file_exists($languageConfigFile)) {
                 // 引入数据库连接文件
                 require_once '../includes/config.php';
                 // 查询所有分类
-                $sql = "SELECT id, name FROM categories";
+                $sql = "SELECT id, name FROM categories order by id asc";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
                 $result = $stmt->get_result();

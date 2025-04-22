@@ -79,14 +79,25 @@ $stmtTestCases->close();
         <div class="card mt-3">
             <div class="card-body">
                 <h5 class="card-title">输入输出样例</h5>
-                <?php foreach ($testCases as $testCase): ?>
-                    <div class="mb-3">
-                        <h6>输入</h6>
-                        <pre><?php echo htmlspecialchars($testCase['input']); ?></pre>
-                        <h6>输出</h6>
-                        <pre><?php echo htmlspecialchars($testCase['output']); ?></pre>
-                    </div>
-                <?php endforeach; ?>
+                <!-- 修改为表格形式显示 -->
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">序号</th>
+                            <th scope="col">输入</th>
+                            <th scope="col">输出</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($testCases as $index => $testCase): ?>
+                            <tr>
+                                <th scope="row"><?php echo $index + 1; ?></th>
+                                <td><pre><?php echo htmlspecialchars(empty($testCase['input']) ? '（空）' : $testCase['input']); ?></pre></td>
+                                <td><pre><?php echo htmlspecialchars($testCase['output']); ?></pre></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
         <form id="answerForm">

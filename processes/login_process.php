@@ -19,7 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 检查是否有匹配的用户记录
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
-        session_start();
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['is_admin'] = $user['is_admin'];

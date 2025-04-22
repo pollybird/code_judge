@@ -21,19 +21,33 @@ $category_id = isset($_GET['category']) && is_numeric($_GET['category']) ? $_GET
 // 处理删除题目请求
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $question_id = $_GET['delete'];
-    $stmt = $conn->prepare("DELETE FROM questions WHERE id =?");
-    $stmt->bind_param("i", $question_id);
-    if ($stmt->execute()) {
-        // 同时删除该题目的测试用例
+    // 开启事务
+    $conn->begin_transaction();
+    try {
+        // 先删除该题目的测试用例
         $delete_test_case_stmt = $conn->prepare("DELETE FROM test_cases WHERE question_id =?");
         $delete_test_case_stmt->bind_param("i", $question_id);
-        $delete_test_case_stmt->execute();
+        if (!$delete_test_case_stmt->execute()) {
+            throw new Exception("删除测试用例失败：" . $delete_test_case_stmt->error);
+        }
         $delete_test_case_stmt->close();
+
+        // 再删除题目
+        $stmt = $conn->prepare("DELETE FROM questions WHERE id =?");
+        $stmt->bind_param("i", $question_id);
+        if (!$stmt->execute()) {
+            throw new Exception("删除题目失败：" . $stmt->error);
+        }
+        $stmt->close();
+
+        // 提交事务
+        $conn->commit();
         echo '<div class="alert alert-success" role="alert">题目删除成功！</div>';
-    } else {
-        echo '<div class="alert alert-danger" role="alert">题目删除失败：' . $conn->error . '</div>';
+    } catch (Exception $e) {
+        // 回滚事务
+        $conn->rollback();
+        echo '<div class="alert alert-danger" role="alert">题目删除失败：' . $e->getMessage() . '</div>';
     }
-    $stmt->close();
 }
 
 // 处理新增题目请求

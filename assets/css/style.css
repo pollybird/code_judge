@@ -50,3 +50,15 @@ footer {
     border-radius: 50%;
     margin-right: 5px;
 }
+
+.question-status-default {
+    color: #6c757d; /* 灰色，对应未作答 */
+}
+
+.question-status-passed {
+    color: #28a745; /* 绿色，对应作答正确 */
+}
+
+.question-status-failed {
+    color: #dc3545; /* 红色，对应作答错误 */
+}
